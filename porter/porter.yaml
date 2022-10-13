@@ -1,0 +1,84 @@
+schemaVersion: 1.0.0
+name: hello-basta
+version: 0.1.0
+description: "Bundle for deploying the hello-basta application"
+
+# Registry where the bundle is published to by default
+registry: docker.io/thorstenhans
+
+parameters:
+  - name: release
+    description: Specify the name of the Helm release
+    type: string
+    default: basta2022
+  - name: namespace
+    description: Specify the desired Kubernetes namespace
+    type: string
+    default: basta-2022
+  - name: repository
+    description: Container image repository
+    type: string
+    default: thorstenhans/gopher
+  - name: tag
+    description: Container image tag
+    type: string
+    default: "space"
+
+credentials:
+  - name: kubeconfig
+    path: /home/nonroot/.kube/config
+
+mixins:
+  - exec
+  - helm3
+  - kubernetes
+
+install:
+  - exec:
+      command: ./kube.sh
+      arguments:
+        - install
+  - kubernetes:
+      description: "Create ConfigMap"
+      namespace: "${ bundle.parameters.namespace }"
+      manifests:
+        - "/cnab/app/manifests/cm.yml"
+      wait: true
+  - helm3:
+      description: "Install hello-basta sample application"
+      name: "${ bundle.parameters.release }"
+      chart: ./charts/hello-basta
+      namespace: "${ bundle.parameters.namespace }"
+      set:
+        image.repository: "${ bundle.parameters.repository }"
+        image.tag: "${ bundle.parameters.tag }"
+
+upgrade:
+  - helm3:
+      description: "Upgrade basta-sample"
+      name: "${ bundle.parameters.release }"
+      chart: ./charts/hello-basta
+      namespace: "${ bundle.parameters.namespace }"
+      set:
+        image.repository: "${ bundle.parameters.repository }"
+        image.tag: "${ bundle.parameters.tag }"
+
+uninstall:
+  - helm3:
+      description: "Uninstall basta-sample"
+      namespace: "${ bundle.parameters.namespace }"
+      releases:
+        - "${ bundle.parameters.release }"
+  - exec:
+      command: ./kube.sh
+      arguments:
+        - uninstall
+status:
+  - helm3:
+      description: "Print basta-sample status"
+      arguments:
+        - status
+        - "${ bundle.parameters.release }"
+      flags:
+        n: "${ bundle.parameters.namespace }"
+        o: yaml

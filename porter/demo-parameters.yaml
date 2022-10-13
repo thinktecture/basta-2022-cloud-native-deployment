@@ -1,0 +1,17 @@
+# See the Parameter Set file format documentation at https://getporter.org/reference/file-formats/#parameter-set
+schemaType: ParameterSet
+schemaVersion: 1.0.1
+name: demo
+parameters:
+  - name: release
+    source:
+      value: basta2022
+  - name: namespace
+    source:
+      value: basta-2022
+  - name: repository
+    source:
+      value: thorstenhans/gopher
+  - name: tag
+    source:
+      value: space

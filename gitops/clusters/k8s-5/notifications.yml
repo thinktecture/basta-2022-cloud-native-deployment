@@ -1,0 +1,23 @@
+apiVersion: notification.toolkit.fluxcd.io/v1beta1
+kind: Provider
+metadata:
+  name: msteams
+  namespace: flux-system
+spec:
+  type: msteams
+  secretRef:
+    name: msteams
+---
+apiVersion: notification.toolkit.fluxcd.io/v1beta1
+kind: Alert
+metadata:
+  name: on-app-update
+  namespace: flux-system
+spec:
+  summary: "Production Cluster"
+  providerRef:
+    name: msteams
+  eventSeverity: info
+  eventSources:
+    - kind: Kustomization
+      name: 'apps'

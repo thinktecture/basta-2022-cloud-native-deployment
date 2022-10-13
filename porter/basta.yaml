@@ -1,0 +1,8 @@
+schemaType: CredentialSet
+schemaVersion: 1.0.1
+# Name of the credential set.
+name: demo
+credentials:
+  - name: kubeconfig
+    source:
+      path: $HOME/.kube/config
